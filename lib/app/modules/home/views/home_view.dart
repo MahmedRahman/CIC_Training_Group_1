@@ -12,10 +12,17 @@ Product product1 = Product(
   price: 200,
 );
 
+class HomeControllerApi extends GetConnect {
+  Future<List> getProduct() async {
+    Response response = await get("https://629656fc75c34f1f3b2e0b36.mockapi.io/api/v1/product");
+    return response.body;
+  }
+}
+
 class HomeView extends GetView<HomeController> {
-  
   @override
   Widget build(BuildContext context) {
+    HomeControllerApi().getProduct();
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -43,13 +50,32 @@ class HomeView extends GetView<HomeController> {
                   height: 250,
                   color: Colors.blue,
                 ),
-                productCard(
-                  image: product1.image,
-                  title: product1.title,
-                  Price: product1.price,
-                  decription: product1.description,
-                  name: product1.name,
-                ),
+                FutureBuilder(
+                    future: HomeControllerApi().getProduct(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        print(snapshot.data);
+
+                        List ProductList = snapshot.data!;
+
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                              children: List.generate(ProductList.length, (index) {
+                            print(ProductList.elementAt(index));
+                            return productCard(
+                              image: ProductList.elementAt(index)["image"],
+                              title: ProductList.elementAt(index)["title"],
+                              Price: product1.price,
+                              decription: ProductList.elementAt(index)["description"],
+                              name: ProductList.elementAt(index)["name"],
+                            );
+                          })),
+                        );
+                      }
+
+                      return CircularProgressIndicator();
+                    }),
                 section7(
                   text: "Who we Are",
                   image: "asset/image/slider001.png",
@@ -87,7 +113,7 @@ class HomeView extends GetView<HomeController> {
             decoration: BoxDecoration(
               color: Color(0xffE9E9EC),
             ),
-            child: Image.asset(image),
+            child: Image.network(image),
           ),
           Padding(
             padding: const EdgeInsets.only(
