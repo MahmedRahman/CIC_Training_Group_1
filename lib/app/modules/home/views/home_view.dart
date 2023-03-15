@@ -12,10 +12,18 @@ Product product1 = Product(
   price: 200,
 );
 
+
+
 class HomeControllerApi extends GetConnect {
   Future<List> getProduct() async {
-    Response response = await get("https://629656fc75c34f1f3b2e0b36.mockapi.io/api/v1/product");
+    Response response = await get("https://629656fc75c34f1f3b2e0b36.mockapi.io/api/v1/category");
     return response.body;
+
+  }
+  Future<List> getCategory() async {
+    Response response = await get("https://629656fc75c34f1f3b2e0b36.mockapi.io/api/v1/category");
+    return response.body;
+
   }
 }
 
@@ -62,15 +70,15 @@ class HomeView extends GetView<HomeController> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                               children: List.generate(ProductList.length, (index) {
-                            print(ProductList.elementAt(index));
-                            return productCard(
-                              image: ProductList.elementAt(index)["image"],
-                              title: ProductList.elementAt(index)["title"],
-                              Price: product1.price,
-                              decription: ProductList.elementAt(index)["description"],
-                              name: ProductList.elementAt(index)["name"],
-                            );
-                          })),
+                                print(ProductList.elementAt(index));
+                                return productCard(
+                                  image: ProductList.elementAt(index)["image"],
+                                  title: ProductList.elementAt(index)["title"],
+                                  Price: product1.price,
+                                  decription: ProductList.elementAt(index)["description"],
+                                  name: ProductList.elementAt(index)["name"],
+                                );
+                              })),
                         );
                       }
 
@@ -242,13 +250,24 @@ class HomeView extends GetView<HomeController> {
     return Container(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: Row(
-          children: List.generate(10, (index) {
-            return categoryItem(
-              text: "Growth",
-              icon: "asset/image/open-book.png",
-            );
-          }),
+        child: FutureBuilder(
+            future: HomeControllerApi().getCategory(),
+            builder: (context, snapshot) {
+              if(snapshot.hasData){
+                List CategoryList = snapshot.data!;
+                return Row(
+                  children: List.generate(CategoryList.length, (index) {
+                    return categoryItem(
+                      text: CategoryList.elementAt(index)["name"],
+                      icon: CategoryList.elementAt(index)["image"],
+                    );
+                  }),
+                );
+
+              }
+              return CircularProgressIndicator();
+
+            }
         ),
       ),
     );
@@ -309,7 +328,7 @@ class HomeView extends GetView<HomeController> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Image.asset(
+              child: Image.network(
                 icon,
                 width: 31,
               ),
@@ -369,5 +388,13 @@ class Product {
     required this.title,
     required this.image,
     required this.price,
+  });
+}
+class Category{
+  String icon;
+  String text;
+  Category({
+    required this.icon,
+    required this.text,
   });
 }
