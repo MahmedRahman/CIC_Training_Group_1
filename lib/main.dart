@@ -7,7 +7,7 @@ import 'app/routes/app_pages.dart';
 void main() {
   runApp(
     GetMaterialApp(
-      title: "Misr El kheir",
+      title: "Misr",
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
     ),
