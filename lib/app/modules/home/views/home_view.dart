@@ -14,7 +14,14 @@ Product product1 = Product(
 
 class HomeControllerApi extends GetConnect {
   Future<List> getProduct() async {
-    Response response = await get("https://629656fc75c34f1f3b2e0b36.mockapi.io/api/v1/product");
+    Response response =
+        await get("https://629656fc75c34f1f3b2e0b36.mockapi.io/api/v1/product");
+    return response.body;
+  }
+
+  Future<List> getCategory() async {
+    Response response = await get(
+        "https://629656fc75c34f1f3b2e0b36.mockapi.io/api/v1/category");
     return response.body;
   }
 }
@@ -61,13 +68,15 @@ class HomeView extends GetView<HomeController> {
                         return SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
-                              children: List.generate(ProductList.length, (index) {
+                              children:
+                                  List.generate(ProductList.length, (index) {
                             print(ProductList.elementAt(index));
                             return productCard(
                               image: ProductList.elementAt(index)["image"],
                               title: ProductList.elementAt(index)["title"],
-                              Price: product1.price,
-                              decription: ProductList.elementAt(index)["description"],
+                              Price: ProductList.elementAt(index)["price"],
+                              decription:
+                                  ProductList.elementAt(index)["description"],
                               name: ProductList.elementAt(index)["name"],
                             );
                           })),
@@ -171,7 +180,8 @@ class HomeView extends GetView<HomeController> {
                 ),
                 Expanded(
                   child: MaterialButton(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                     onPressed: () {},
                     color: Color(0xff008066),
                     child: Row(
@@ -238,18 +248,33 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Container section2() {
+  Widget section2() {
     return Container(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: List.generate(10, (index) {
-            return categoryItem(
-              text: "Growth",
-              icon: "asset/image/open-book.png",
+      child: FutureBuilder(
+        future: HomeControllerApi().getCategory(),
+        builder: (context, snapshot) {
+
+          if (snapshot.hasData) {
+            List categoryList = snapshot.data!;
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(categoryList.length,
+                  (index) {
+                    return categoryItem(
+                      text: categoryList.elementAt(index)["name"],
+                      image: categoryList.elementAt(index)["image"],
+                    );
+                  },
+                ),
+              ),
             );
-          }),
-        ),
+
+
+          }
+          return CircularProgressIndicator();
+        },
       ),
     );
   }
@@ -292,7 +317,7 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget categoryItem({
-    required String icon,
+    required String image,
     required String text,
   }) {
     return Padding(
@@ -309,8 +334,7 @@ class HomeView extends GetView<HomeController> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Image.asset(
-                icon,
+              child: Image.network(image,
                 width: 31,
               ),
             ),
@@ -370,4 +394,12 @@ class Product {
     required this.image,
     required this.price,
   });
+}
+class Category{
+  String text ;
+  String image ;
+  Category({
+    required this.text,
+    required this.image
+});
 }
