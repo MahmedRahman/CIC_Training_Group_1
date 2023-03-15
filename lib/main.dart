@@ -11,5 +11,5 @@ void main() {
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
     ),
-  );
+  );  
 }
